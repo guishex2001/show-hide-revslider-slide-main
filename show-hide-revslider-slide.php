@@ -48,7 +48,8 @@ function mostrar_contenido() {
     // Obtener todos los sliders de Revolution Slider
     $sliders = $wpdb->get_results("SELECT id, title FROM {$wpdb->prefix}revslider_sliders");
 
-    if (isset($_POST['submit'])) {
+    // Verificar si se ha enviado el formulario y si 'slide' está definido en $_POST
+    if (isset($_POST['submit']) && isset($_POST['slide'])) {
         // Obtener los valores seleccionados del formulario
         $slider = $_POST['slider'];
         $slide = $_POST['slide'];
@@ -105,6 +106,7 @@ function mostrar_contenido() {
     <?php
 }
 
+
 // Función para cargar dinámicamente los slides de un slider específico
 add_action('wp_ajax_cargar_slides', 'cargar_slides_callback');
 function cargar_slides_callback() {
@@ -140,23 +142,21 @@ function obtener_estado_slide($wpdb, $slider, $slide) {
 // Función para mostrar un slide
 function mostrar_slide($wpdb, $slider, $slide) {
     $table_name = $wpdb->prefix . 'revslider_slides';
-    $wpdb->query(
-        $wpdb->prepare(
-            "UPDATE $table_name SET params = REPLACE(params, '\"state\":\"unpublished\"', '\"state\":\"published\"') WHERE slider_id = %s AND slide_order = %s",
-            $slider,
-            $slide
-        )
+    $params = '{"publish":{"state":"published"}}'; // Nuevos parámetros para mostrar el slide
+    $wpdb->update(
+        $table_name,
+        array('params' => $params),
+        array('slider_id' => $slider, 'slide_order' => $slide)
     );
 }
 
 // Función para ocultar un slide
 function ocultar_slide($wpdb, $slider, $slide) {
     $table_name = $wpdb->prefix . 'revslider_slides';
-    $wpdb->query(
-        $wpdb->prepare(
-            "UPDATE $table_name SET params = REPLACE(params, '\"state\":\"published\"', '\"state\":\"unpublished\"') WHERE slider_id = %s AND slide_order = %s",
-            $slider,
-            $slide
-        )
+    $params = '{"publish":{"state":"unpublished"}}'; // Nuevos parámetros para ocultar el slide
+    $wpdb->update(
+        $table_name,
+        array('params' => $params),
+        array('slider_id' => $slider, 'slide_order' => $slide)
     );
 }
