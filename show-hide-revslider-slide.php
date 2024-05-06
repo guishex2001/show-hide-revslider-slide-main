@@ -112,7 +112,8 @@ add_action('wp_ajax_cargar_slides', 'cargar_slides_callback');
 function cargar_slides_callback() {
     global $wpdb;
     $slider_id = $_POST['slider_id'];
-    $slides = $wpdb->get_results($wpdb->prepare("SELECT slide_order, params FROM {$wpdb->prefix}revslider_slides WHERE slider_id = %s", $slider_id));
+    // Modificar la consulta para filtrar solo los slides que contengan "video" en el título
+    $slides = $wpdb->get_results($wpdb->prepare("SELECT slide_order, params FROM {$wpdb->prefix}revslider_slides WHERE slider_id = %s AND params LIKE '%%\"title\":\"%video%\"%%'", $slider_id));
 
     $options_html = '';
     foreach ($slides as $slide) {
@@ -124,6 +125,8 @@ function cargar_slides_callback() {
     echo $options_html;
     exit;
 }
+
+
 
 // Función para obtener el estado actual del slide
 function obtener_estado_slide($wpdb, $slider, $slide) {
