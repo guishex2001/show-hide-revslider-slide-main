@@ -49,7 +49,7 @@ function mostrar_contenido() {
     $sliders = $wpdb->get_results("SELECT id, title FROM {$wpdb->prefix}revslider_sliders");
 
     // Verificar si se ha enviado el formulario y si 'slide' está definido en $_POST
-    if (isset($_POST['submit']) && isset($_POST['slide'])) {
+    if (isset($_POST['submit']) && isset($_POST['slide']) && isset($_POST['slider'])) {
         // Obtener los valores seleccionados del formulario
         $slider = $_POST['slider'];
         $slide = $_POST['slide'];
@@ -71,6 +71,7 @@ function mostrar_contenido() {
         <form method="post">
             <label for="slider">Selecciona el slider:</label>
             <select name="slider" id="slider">
+                <option value="">Seleccionar slider</option>
                 <?php foreach ($sliders as $s) : ?>
                     <option value="<?php echo $s->id; ?>"><?php echo $s->title; ?></option>
                 <?php endforeach; ?>
@@ -106,7 +107,6 @@ function mostrar_contenido() {
     <?php
 }
 
-
 // Función para cargar dinámicamente los slides de un slider específico
 add_action('wp_ajax_cargar_slides', 'cargar_slides_callback');
 function cargar_slides_callback() {
@@ -126,8 +126,6 @@ function cargar_slides_callback() {
     exit;
 }
 
-
-
 // Función para obtener el estado actual del slide
 function obtener_estado_slide($wpdb, $slider, $slide) {
     $table_name = $wpdb->prefix . 'revslider_slides';
@@ -135,7 +133,8 @@ function obtener_estado_slide($wpdb, $slider, $slide) {
     $params = $wpdb->get_var($query);
 
     // Verificar el estado del slide en los parámetros
-    if (strpos($params, '"state":"unpublished"') !== false) {
+    $params_array = json_decode($params, true);
+    if (isset($params_array['publish']['state']) && $params_array['publish']['state'] === 'unpublished') {
         return 'oculto';
     } else {
         return 'visible';
@@ -145,10 +144,17 @@ function obtener_estado_slide($wpdb, $slider, $slide) {
 // Función para mostrar un slide
 function mostrar_slide($wpdb, $slider, $slide) {
     $table_name = $wpdb->prefix . 'revslider_slides';
-    $params = '{"publish":{"state":"published"}}'; // Nuevos parámetros para mostrar el slide
+    // Obtener los parámetros actuales del slide
+    $query = $wpdb->prepare("SELECT params FROM $table_name WHERE slider_id = %s AND slide_order = %s", $slider, $slide);
+    $params = json_decode($wpdb->get_var($query), true);
+
+    // Actualizar el estado del slide a publicado
+    $params['publish']['state'] = 'published';
+    $params_json = json_encode($params);
+
     $wpdb->update(
         $table_name,
-        array('params' => $params),
+        array('params' => $params_json),
         array('slider_id' => $slider, 'slide_order' => $slide)
     );
 }
@@ -156,10 +162,17 @@ function mostrar_slide($wpdb, $slider, $slide) {
 // Función para ocultar un slide
 function ocultar_slide($wpdb, $slider, $slide) {
     $table_name = $wpdb->prefix . 'revslider_slides';
-    $params = '{"publish":{"state":"unpublished"}}'; // Nuevos parámetros para ocultar el slide
+    // Obtener los parámetros actuales del slide
+    $query = $wpdb->prepare("SELECT params FROM $table_name WHERE slider_id = %s AND slide_order = %s", $slider, $slide);
+    $params = json_decode($wpdb->get_var($query), true);
+
+    // Actualizar el estado del slide a no publicado
+    $params['publish']['state'] = 'unpublished';
+    $params_json = json_encode($params);
+
     $wpdb->update(
         $table_name,
-        array('params' => $params),
+        array('params' => $params_json),
         array('slider_id' => $slider, 'slide_order' => $slide)
     );
 }
