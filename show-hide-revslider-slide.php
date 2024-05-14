@@ -41,6 +41,7 @@ function crear_menu() {
     );
 }
 
+
 // Función para mostrar el contenido de la página del menú
 function mostrar_contenido() {
     global $wpdb;
@@ -66,7 +67,7 @@ function mostrar_contenido() {
     }
 
     ?>
-    <div class="turnero-info">
+    <div class="show-hide-info">
         <h1>Show Hide RevSlider Slide</h1>
         <form method="post">
             <label for="slider">Selecciona el slider:</label>
@@ -85,6 +86,50 @@ function mostrar_contenido() {
             <input type="submit" name="submit" value="Mostrar/Ocultar">
         </form>
     </div>
+    <style>
+        .show-hide-info {
+            background: #fff;
+            border: 1px solid #ccd0d4;
+            border-radius: 4px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 20px auto;
+        }
+
+        .show-hide-info h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .show-hide-info label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .show-hide-info select, .show-hide-info input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccd0d4;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .show-hide-info input[type="submit"] {
+            background: #0073aa;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .show-hide-info input[type="submit"]:hover {
+            background: #005177;
+        }
+    </style>
     <script>
         // Función para cargar dinámicamente los slides cuando se seleccione un slider
         jQuery(document).ready(function ($) {
@@ -106,7 +151,6 @@ function mostrar_contenido() {
     </script>
     <?php
 }
-
 // Función para cargar dinámicamente los slides de un slider específico
 add_action('wp_ajax_cargar_slides', 'cargar_slides_callback');
 function cargar_slides_callback() {
