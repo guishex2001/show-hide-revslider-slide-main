@@ -153,6 +153,8 @@ function mostrar_contenido() {
 }
 // Función para cargar dinámicamente los slides de un slider específico
 add_action('wp_ajax_cargar_slides', 'cargar_slides_callback');
+
+//filtro de slides con una palabra
 function cargar_slides_callback() {
     global $wpdb;
     $slider_id = $_POST['slider_id'];
@@ -170,6 +172,30 @@ function cargar_slides_callback() {
     echo $options_html;
     exit;
 }
+
+// sin filtro de palabra
+/*
+function cargar_slides_callback() {
+    global $wpdb;
+    $slider_id = $_POST['slider_id'];
+    // Consulta para obtener todos los slides del slider seleccionado
+    $slides = $wpdb->get_results($wpdb->prepare("SELECT slide_order, params FROM {$wpdb->prefix}revslider_slides WHERE slider_id = %s", $slider_id));
+
+    $options_html = '';
+    foreach ($slides as $slide) {
+        $params = json_decode($slide->params);
+        $slide_title = isset($params->title) ? $params->title : 'Slide ' . $slide->slide_order;
+        // Obtener el estado actual del slide
+        $estado_actual = obtener_estado_slide($wpdb, $slider_id, $slide->slide_order);
+        $options_html .= "<option value='{$slide->slide_order}'>{$slide_title} ({$estado_actual})</option>";
+    }
+
+    echo $options_html;
+    exit;
+}
+*/
+
+
 
 // Función para obtener el estado actual del slide
 function obtener_estado_slide($wpdb, $slider, $slide) {
