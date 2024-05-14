@@ -163,7 +163,8 @@ function cargar_slides_callback() {
     foreach ($slides as $slide) {
         $params = json_decode($slide->params);
         $slide_title = isset($params->title) ? $params->title : 'Slide ' . $slide->slide_order;
-        $options_html .= "<option value='{$slide->slide_order}'>{$slide_title}</option>";
+        $estado_actual = obtener_estado_slide($wpdb, $slider_id, $slide->slide_order);
+        $options_html .= "<option value='{$slide->slide_order}'>{$slide_title} ({$estado_actual})</option>";
     }
 
     echo $options_html;
